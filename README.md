@@ -8,6 +8,7 @@ Refined toward your screenshot style:
 - compact music chip in dock row
 - subtle animations only
 - Fedora + GNOME extensions vibe
+- Browser app starts on DuckDuckGo with adjustable frame size + proxy settings
 
 ## Run
 
