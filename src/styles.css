@@ -147,6 +147,10 @@ body,
   padding: 12px;
 }
 
+.frame-content {
+  padding: 10px;
+}
+
 .pane h3 {
   margin: 0 0 8px;
   font-size: 16px;
@@ -164,12 +168,38 @@ body,
   gap: 8px;
 }
 
+.web-app {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 .app-chip {
   width: 22px;
   height: 22px;
   border-radius: 7px;
   display: grid;
   place-items: center;
+}
+
+.open-link {
+  margin-left: auto;
+  color: #93c5fd;
+  font-size: 11px;
+  text-decoration: none;
+}
+
+.open-link:hover {
+  text-decoration: underline;
+}
+
+.app-frame {
+  flex: 1;
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.25);
 }
 
 .launcher {
@@ -284,19 +314,6 @@ body,
   background: rgba(255, 255, 255, 0.16);
 }
 
-.music-chip {
-  height: 26px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.06);
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 0 8px;
-  font-size: 10px;
-  letter-spacing: 0.4px;
-}
-
 @keyframes winIn {
   from {
     opacity: 0;
@@ -365,7 +382,4 @@ body,
     justify-content: space-around;
   }
 
-  .music-chip {
-    display: none;
-  }
 }
