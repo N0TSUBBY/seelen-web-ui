@@ -25,13 +25,21 @@ const DOCK_HEIGHT = 56
 const MIN_WINDOW_WIDTH = 320
 const MIN_WINDOW_HEIGHT = 220
 
+const FREE_PROXY_PRESETS = [
+  { id: 'none', label: 'No proxy', template: '' },
+  { id: 'jina', label: 'r.jina.ai (free web proxy)', template: 'https://r.jina.ai/http://{raw}' },
+  { id: 'cors', label: 'cors.isomorphic-git.org', template: 'https://cors.isomorphic-git.org/{url}' },
+]
+
+const COUNTRIES = ['US', 'GB', 'DE', 'FR', 'NL', 'JP', 'SG']
+
 const APPS = [
   {
     id: 'files',
     label: 'Files',
     icon: Folder,
     color: '#60a5fa',
-    logo: '📁',
+    brand: 'FI',
     type: 'internal',
   },
   {
@@ -39,7 +47,7 @@ const APPS = [
     label: 'Terminal',
     icon: TerminalSquare,
     color: '#34d399',
-    logo: '⌨️',
+    brand: 'SH',
     type: 'internal',
   },
   {
@@ -47,34 +55,33 @@ const APPS = [
     label: 'Browser',
     icon: Globe,
     color: '#f59e0b',
-    logo: '🌐',
-    type: 'web',
-    url: 'https://www.wikipedia.org',
+    brand: 'DDG',
+    type: 'internal',
   },
   {
     id: 'discord',
     label: 'Discord',
     icon: MessageCircle,
     color: '#818cf8',
-    logo: '💬',
+    brand: 'DC',
     type: 'web',
-    url: 'https://discord.com/app',
+    url: 'https://discord.com/login',
   },
   {
     id: 'youtube',
     label: 'YouTube',
     icon: Youtube,
     color: '#ef4444',
-    logo: '▶️',
+    brand: 'YT',
     type: 'web',
-    url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+    url: 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?rel=0&modestbranding=1',
   },
   {
     id: 'copilot',
     label: 'Copilot',
     icon: Sparkles,
     color: '#38bdf8',
-    logo: '🤖',
+    brand: 'GH',
     type: 'web',
     url: 'https://github.com/features/copilot',
   },
@@ -128,7 +135,139 @@ function clampWindow(win, desktop) {
   }
 }
 
-function AppContent({ app, filter }) {
+function normalizeAddress(raw) {
+  const value = raw.trim()
+  if (!value) return 'https://duckduckgo.com/'
+
+  if (value.includes(' ')) {
+    return `https://duckduckgo.com/?q=${encodeURIComponent(value)}`
+  }
+
+  if (/^https?:\/\//i.test(value)) return value
+
+  if (/^[\w.-]+\.[a-z]{2,}/i.test(value)) {
+    return `https://${value}`
+  }
+
+  return `https://duckduckgo.com/?q=${encodeURIComponent(value)}`
+}
+
+function buildProxyUrl(url, browser) {
+  if (!browser.proxyEnabled) return url
+
+  const preset = FREE_PROXY_PRESETS.find((item) => item.id === browser.proxyPreset)
+  const template = browser.customProxy.trim() || preset?.template
+  if (!template) return url
+
+  const rawUrl = url.replace(/^https?:\/\//i, '')
+  return template
+    .replaceAll('{url}', encodeURIComponent(url))
+    .replaceAll('{raw}', rawUrl)
+    .replaceAll('{country}', browser.proxyCountry.toLowerCase())
+}
+
+function AppBadge({ app, dense = false }) {
+  const Icon = app.icon
+  return (
+    <span className={`app-badge ${dense ? 'dense' : ''}`.trim()}>
+      {app.brand ? <span>{app.brand}</span> : <Icon size={dense ? 11 : 13} />}
+    </span>
+  )
+}
+
+function BrowserPane({ browser, browserSrc, onInput, onNavigate, onSetting }) {
+  return (
+    <div className="browser-app">
+      <form
+        className="browser-toolbar"
+        onSubmit={(e) => {
+          e.preventDefault()
+          onNavigate(browser.input)
+        }}
+      >
+        <input value={browser.input} onChange={(e) => onInput(e.target.value)} placeholder="Search or enter URL" />
+        <button type="submit">Go</button>
+        <button type="button" onClick={() => onSetting('settingsOpen', !browser.settingsOpen)}>
+          Settings
+        </button>
+      </form>
+
+      {browser.settingsOpen && (
+        <div className="browser-settings">
+          <label>
+            Width {browser.frameWidth}%
+            <input
+              type="range"
+              min="55"
+              max="100"
+              value={browser.frameWidth}
+              onChange={(e) => onSetting('frameWidth', Number(e.target.value))}
+            />
+          </label>
+
+          <label>
+            Height {browser.frameHeight}%
+            <input
+              type="range"
+              min="45"
+              max="100"
+              value={browser.frameHeight}
+              onChange={(e) => onSetting('frameHeight', Number(e.target.value))}
+            />
+          </label>
+
+          <label className="proxy-toggle">
+            <input
+              type="checkbox"
+              checked={browser.proxyEnabled}
+              onChange={(e) => onSetting('proxyEnabled', e.target.checked)}
+            />
+            Enable proxy
+          </label>
+
+          <label>
+            Proxy country
+            <select value={browser.proxyCountry} onChange={(e) => onSetting('proxyCountry', e.target.value)}>
+              {COUNTRIES.map((country) => (
+                <option key={country} value={country}>
+                  {country}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label>
+            Free proxy preset
+            <select value={browser.proxyPreset} onChange={(e) => onSetting('proxyPreset', e.target.value)}>
+              {FREE_PROXY_PRESETS.map((preset) => (
+                <option key={preset.id} value={preset.id}>
+                  {preset.label}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label>
+            Custom proxy template
+            <input
+              value={browser.customProxy}
+              placeholder="https://proxy.example/?url={url}&country={country}"
+              onChange={(e) => onSetting('customProxy', e.target.value)}
+            />
+          </label>
+
+          <small>Use {'{url}'} for encoded URLs, {'{raw}'} for raw host path and {'{country}'} for country code.</small>
+        </div>
+      )}
+
+      <div className="browser-frame-wrap" style={{ width: `${browser.frameWidth}%`, height: `${browser.frameHeight}%` }}>
+        <iframe title="Browser" src={browserSrc} className="app-frame" />
+      </div>
+    </div>
+  )
+}
+
+function AppContent({ app, filter, browser, browserSrc, onBrowserInput, onBrowserNavigate, onBrowserSetting }) {
   if (app?.id === 'files') {
     return (
       <div className="linux-pane">
@@ -158,12 +297,24 @@ function AppContent({ app, filter }) {
     )
   }
 
+  if (app?.id === 'browser') {
+    return (
+      <BrowserPane
+        browser={browser}
+        browserSrc={browserSrc}
+        onInput={onBrowserInput}
+        onNavigate={onBrowserNavigate}
+        onSetting={onBrowserSetting}
+      />
+    )
+  }
+
   if (!app) {
     return (
       <div className="pane">
         <h3>Exact-match v2+</h3>
         <p>Resizable windows, Linux-like apps, and logo-rich launcher/dock.</p>
-        <p>Open Files or Terminal for a more laptop-like desktop feel.</p>
+        <p>Open Browser to start with DuckDuckGo and adjust web settings.</p>
       </div>
     )
   }
@@ -171,7 +322,7 @@ function AppContent({ app, filter }) {
   return (
     <div className="web-app">
       <div className="pane-head">
-        <span className="app-logo">{app.logo}</span>
+        <AppBadge app={app} dense />
         <h3>{app.label}</h3>
         <a href={app.url} target="_blank" rel="noreferrer" className="open-link">
           Open in new tab
@@ -190,6 +341,17 @@ export default function App() {
   const [launcherOpen, setLauncherOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [desktopSize, setDesktopSize] = useState({ width: window.innerWidth, height: window.innerHeight })
+  const [browser, setBrowser] = useState({
+    input: 'https://duckduckgo.com/',
+    url: 'https://duckduckgo.com/',
+    frameWidth: 100,
+    frameHeight: 100,
+    settingsOpen: false,
+    proxyEnabled: false,
+    proxyCountry: 'US',
+    proxyPreset: 'none',
+    customProxy: '',
+  })
 
   useEffect(() => {
     const onResize = () => {
@@ -204,6 +366,20 @@ export default function App() {
 
   const topZ = useMemo(() => Math.max(10, ...windows.map((w) => w.z || 10)) + 1, [windows])
   const visibleApps = APPS.filter((app) => app.label.toLowerCase().includes(query.toLowerCase()))
+  const browserSrc = useMemo(() => buildProxyUrl(browser.url, browser), [browser])
+
+  const onBrowserInput = (value) => {
+    setBrowser((prev) => ({ ...prev, input: value }))
+  }
+
+  const onBrowserNavigate = (raw) => {
+    const nextUrl = normalizeAddress(raw)
+    setBrowser((prev) => ({ ...prev, input: nextUrl, url: nextUrl }))
+  }
+
+  const onBrowserSetting = (field, value) => {
+    setBrowser((prev) => ({ ...prev, [field]: value }))
+  }
 
   const bringToFront = (id) => {
     setWindows((prev) => {
@@ -247,6 +423,12 @@ export default function App() {
   }
 
   const openApp = (app) => {
+    if (app.id === 'discord') {
+      window.open('https://discord.com/login', '_blank', 'noopener,noreferrer')
+      setLauncherOpen(false)
+      return
+    }
+
     const existing = windows.find((w) => w.id === app.id)
     if (existing) {
       bringToFront(app.id)
@@ -265,7 +447,7 @@ export default function App() {
         minimized: false,
         maximized: false,
         z: topZ,
-        contentClass: app.type === 'web' ? 'frame-content' : 'pane',
+        contentClass: app.type === 'web' || app.id === 'browser' ? 'frame-content' : 'pane',
       },
       desktopSize,
     )
@@ -341,7 +523,7 @@ export default function App() {
       <aside className="desktop-shortcuts">
         {APPS.slice(0, 3).map((app) => (
           <button key={app.id} className="shortcut-btn" onClick={() => openApp(app)}>
-            <span>{app.logo}</span>
+            <AppBadge app={app} />
             <small>{app.label}</small>
           </button>
         ))}
@@ -368,7 +550,7 @@ export default function App() {
                 }}
               >
                 <div className="title-left">
-                  {app ? <span className="title-logo">{app.logo}</span> : <Monitor size={13} />}
+                  {app ? <AppBadge app={app} dense /> : <Monitor size={13} />}
                   <span>{w.title}</span>
                 </div>
                 <div className="actions">
@@ -384,7 +566,15 @@ export default function App() {
                 </div>
               </div>
               <div className={`content ${w.contentClass || ''}`.trim()}>
-                <AppContent app={app} filter={query} />
+                <AppContent
+                  app={app}
+                  filter={query}
+                  browser={browser}
+                  browserSrc={browserSrc}
+                  onBrowserInput={onBrowserInput}
+                  onBrowserNavigate={onBrowserNavigate}
+                  onBrowserSetting={onBrowserSetting}
+                />
               </div>
               {!w.maximized && (
                 <button
@@ -423,7 +613,7 @@ export default function App() {
                     <Icon size={14} />
                   </span>
                   <span className="grid-label">
-                    {app.logo} {app.label}
+                    <AppBadge app={app} dense /> {app.label}
                   </span>
                 </button>
               )
@@ -440,7 +630,7 @@ export default function App() {
 
           {APPS.map((app) => (
             <button key={app.id} className="dock-btn" onClick={() => openApp(app)} title={app.label}>
-              <span className="dock-logo">{app.logo}</span>
+              <AppBadge app={app} dense />
             </button>
           ))}
         </div>

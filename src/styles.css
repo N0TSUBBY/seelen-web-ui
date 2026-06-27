@@ -160,6 +160,26 @@ body,
   font-size: 14px;
 }
 
+.app-badge {
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.08);
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.app-badge.dense {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  font-size: 8px;
+}
+
 .actions {
   display: flex;
   gap: 5px;
@@ -249,6 +269,77 @@ body,
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+.browser-app {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.browser-toolbar {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 6px;
+}
+
+.browser-toolbar input,
+.browser-settings input,
+.browser-settings select {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.2);
+  color: var(--text);
+  height: 30px;
+  padding: 0 8px;
+}
+
+.browser-toolbar button {
+  height: 30px;
+  border: 0;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--text);
+  padding: 0 10px;
+}
+
+.browser-settings {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  background: rgba(4, 8, 16, 0.65);
+  padding: 8px;
+  display: grid;
+  gap: 7px;
+  font-size: 11px;
+}
+
+.proxy-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.proxy-toggle input {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+}
+
+.browser-settings label {
+  display: grid;
+  gap: 4px;
+}
+
+.browser-settings small {
+  color: var(--muted);
+}
+
+.browser-frame-wrap {
+  margin: 0 auto;
+  min-height: 140px;
+  max-width: 100%;
 }
 
 .app-logo {
@@ -361,6 +452,9 @@ body,
 
 .grid-label {
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .dock-wrap {
@@ -459,8 +553,9 @@ body,
   .window {
     left: 8px !important;
     width: calc(100vw - 16px) !important;
-    top: 78px !important;
-    height: min(58vh, 500px) !important;
+    top: 58px !important;
+    height: min(68vh, 560px) !important;
+    border-radius: 14px;
   }
 
   .titlebar {
@@ -469,7 +564,7 @@ body,
 
   .launcher {
     width: calc(100vw - 16px);
-    bottom: 58px;
+    bottom: 64px;
   }
 
   .grid {
@@ -479,5 +574,23 @@ body,
   .dock {
     width: calc(100vw - 16px);
     justify-content: space-around;
+  }
+
+  .dock-btn {
+    width: 34px;
+    height: 34px;
+  }
+
+  .content {
+    padding: 10px 8px;
+  }
+
+  .browser-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .browser-frame-wrap {
+    width: 100% !important;
+    height: 100% !important;
   }
 }
