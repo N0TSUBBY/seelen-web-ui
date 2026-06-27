@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
-  Bell,
   BatteryFull,
+  Bell,
   Disc3,
+  File,
   Folder,
+  Globe,
   Minus,
   Search,
   Settings2,
@@ -11,6 +13,7 @@ import {
   Volume2,
   Wifi,
   X,
+  MessageCircle,
 } from 'lucide-react'
 
 const APPS = [
@@ -18,11 +21,23 @@ const APPS = [
     id: 'files',
     label: 'Files',
     icon: Folder,
-    color: '#f5be3d',
+    color: '#f6c244',
     content: (
       <div className="pane">
         <h3>Files</h3>
-        <p>Clean file launcher panel. Add your folders in the next step.</p>
+        <p>GNOME-style file browser card.</p>
+      </div>
+    ),
+  },
+  {
+    id: 'browser',
+    label: 'Browser',
+    icon: Globe,
+    color: '#60a5fa',
+    content: (
+      <div className="pane">
+        <h3>Browser</h3>
+        <p>Fast web launcher panel. Add your favorite links next.</p>
       </div>
     ),
   },
@@ -55,23 +70,35 @@ const APPS = [
       </div>
     ),
   },
+  {
+    id: 'chat',
+    label: 'Chat',
+    icon: MessageCircle,
+    color: '#818cf8',
+    content: (
+      <div className="pane">
+        <h3>Chat</h3>
+        <p>Discord-style quick launcher panel.</p>
+      </div>
+    ),
+  },
 ]
 
 const initialWindows = [
   {
     id: 'welcome',
-    title: 'Welcome',
-    x: 72,
-    y: 92,
-    w: 420,
-    h: 250,
+    title: 'Overview',
+    x: 76,
+    y: 96,
+    w: 450,
+    h: 270,
     minimized: false,
     z: 10,
     content: (
       <div className="pane">
-        <h3>Seelen-style Web Desktop</h3>
-        <p>Designed clean, minimal and responsive for desktop and mobile.</p>
-        <p>Use the dock buttons to open apps. Drag window by its title bar.</p>
+        <h3>Fedora + GNOME style web desktop</h3>
+        <p>Dark, clean, slick animations, and dock-centric workflow.</p>
+        <p>Use the center clock or dock to open the app launcher.</p>
       </div>
     ),
   },
@@ -125,10 +152,10 @@ export default function App() {
     const newWindow = {
       id: app.id,
       title: app.label,
-      x: 100 + Math.random() * 140,
+      x: 110 + Math.random() * 140,
       y: 110 + Math.random() * 90,
-      w: 410,
-      h: 260,
+      w: 420,
+      h: 270,
       minimized: false,
       z: topZ,
       content: app.content,
@@ -163,10 +190,12 @@ export default function App() {
       onPointerLeave={() => setDrag(null)}
     >
       <div className="overlay" />
+      <div className="ambient ambient-a" />
+      <div className="ambient ambient-b" />
 
       <header className="topbar">
         <div className="pill left-pill">
-          <span className="logo-dot" />
+          <span className="workspace-dot" />
           <span>Seelen UI</span>
         </div>
 
@@ -190,7 +219,7 @@ export default function App() {
           w.minimized ? null : (
             <section
               key={w.id}
-              className="window"
+              className="window window-enter"
               style={{ left: w.x, top: w.y, width: w.w, height: w.h, zIndex: w.z }}
               onPointerDown={() => focusWindow(w.id)}
             >
@@ -201,7 +230,10 @@ export default function App() {
                   setDrag({ id: w.id, offsetX: e.clientX - w.x, offsetY: e.clientY - w.y })
                 }}
               >
-                <span>{w.title}</span>
+                <div className="title-left">
+                  <File size={14} />
+                  <span>{w.title}</span>
+                </div>
                 <div className="window-actions">
                   <button onClick={() => minimizeWindow(w.id)} aria-label="Minimize">
                     <Minus size={14} />
@@ -218,10 +250,10 @@ export default function App() {
       </main>
 
       {startOpen && (
-        <section className="start-menu">
+        <section className="start-menu menu-enter">
           <div className="search-wrap">
             <Search size={16} />
-            <input placeholder="Search apps" />
+            <input placeholder="Type to search apps" />
           </div>
 
           <div className="start-grid">
@@ -241,8 +273,8 @@ export default function App() {
       )}
 
       <footer className="dock-wrap">
-        <div className="dock">
-          <button className="dock-btn start" onClick={() => setStartOpen((s) => !s)} title="Start">
+        <div className="dock dock-enter">
+          <button className="dock-btn start" onClick={() => setStartOpen((s) => !s)} title="Applications">
             ◼
           </button>
 

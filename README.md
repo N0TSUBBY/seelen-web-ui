@@ -1,12 +1,12 @@
-# Seelen Web UI (React + Vite)
+# Seelen Web UI (Fedora + GNOME Style)
 
-A clean, Seelen-inspired desktop web interface with:
+A clean, Seelen-inspired and GNOME-like desktop web interface with:
 
 - live real-time clock/date
-- top status pills
-- centered bottom dock
-- working start menu
-- draggable desktop windows
+- animated top pills and launcher
+- centered dock with hover animations
+- working app launcher and draggable windows
+- apps similar to your reference (Files, Browser, Music, Security, Chat)
 - responsive mobile layout
 
 ## Run
