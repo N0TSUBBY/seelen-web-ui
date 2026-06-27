@@ -1,13 +1,13 @@
-# Seelen Web UI (Fedora + GNOME Style)
+# Seelen Web UI — Exact Match v2
 
-A clean, Seelen-inspired and GNOME-like desktop web interface with:
+Refined toward your screenshot style:
 
-- live real-time clock/date
-- animated top pills and launcher
-- centered dock with hover animations
-- working app launcher and draggable windows
-- apps similar to your reference (Files, Browser, Music, Security, Chat)
-- responsive mobile layout
+- very small top floating pills
+- dark minimal scene with centered subject focus
+- tiny bottom center dock
+- compact music chip in dock row
+- subtle animations only
+- Fedora + GNOME extensions vibe
 
 ## Run
 
@@ -18,8 +18,6 @@ npm run dev
 
 ## Wallpaper
 
-Put your provided wallpaper image at:
+Use your image at:
 
 `public/wallpaper.jpg`
-
-Then refresh the app.

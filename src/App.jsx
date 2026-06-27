@@ -1,9 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   BatteryFull,
   Bell,
   Disc3,
-  File,
   Folder,
   Globe,
   Minus,
@@ -14,91 +13,32 @@ import {
   Wifi,
   X,
   MessageCircle,
+  Monitor,
 } from 'lucide-react'
 
 const APPS = [
-  {
-    id: 'files',
-    label: 'Files',
-    icon: Folder,
-    color: '#f6c244',
-    content: (
-      <div className="pane">
-        <h3>Files</h3>
-        <p>GNOME-style file browser card.</p>
-      </div>
-    ),
-  },
-  {
-    id: 'browser',
-    label: 'Browser',
-    icon: Globe,
-    color: '#60a5fa',
-    content: (
-      <div className="pane">
-        <h3>Browser</h3>
-        <p>Fast web launcher panel. Add your favorite links next.</p>
-      </div>
-    ),
-  },
-  {
-    id: 'music',
-    label: 'Music',
-    icon: Disc3,
-    color: '#22c55e',
-    content: (
-      <div className="pane">
-        <h3>Now Playing</h3>
-        <p>Shake Sum</p>
-        <div className="music-mini">
-          <button>⏮</button>
-          <button>⏯</button>
-          <button>⏭</button>
-        </div>
-      </div>
-    ),
-  },
-  {
-    id: 'security',
-    label: 'Security',
-    icon: Shield,
-    color: '#fb923c',
-    content: (
-      <div className="pane">
-        <h3>Security</h3>
-        <p>System secure. No threats detected.</p>
-      </div>
-    ),
-  },
-  {
-    id: 'chat',
-    label: 'Chat',
-    icon: MessageCircle,
-    color: '#818cf8',
-    content: (
-      <div className="pane">
-        <h3>Chat</h3>
-        <p>Discord-style quick launcher panel.</p>
-      </div>
-    ),
-  },
+  { id: 'files', label: 'Files', icon: Folder, color: '#f4c74f' },
+  { id: 'browser', label: 'Browser', icon: Globe, color: '#60a5fa' },
+  { id: 'music', label: 'Music', icon: Disc3, color: '#22c55e' },
+  { id: 'security', label: 'Security', icon: Shield, color: '#fb923c' },
+  { id: 'chat', label: 'Discord', icon: MessageCircle, color: '#818cf8' },
 ]
 
-const initialWindows = [
+const INITIAL_WINDOWS = [
   {
     id: 'welcome',
-    title: 'Overview',
-    x: 76,
-    y: 96,
-    w: 450,
-    h: 270,
+    title: 'Seelen Session',
+    x: 108,
+    y: 98,
+    w: 430,
+    h: 245,
     minimized: false,
     z: 10,
     content: (
       <div className="pane">
-        <h3>Fedora + GNOME style web desktop</h3>
-        <p>Dark, clean, slick animations, and dock-centric workflow.</p>
-        <p>Use the center clock or dock to open the app launcher.</p>
+        <h3>Exact-match v2</h3>
+        <p>Minimal top pills, tiny dock, dark Fedora/GNOME vibe.</p>
+        <p>Click apps in dock to open and drag windows around.</p>
       </div>
     ),
   },
@@ -106,120 +46,114 @@ const initialWindows = [
 
 function useClock() {
   const [now, setNow] = useState(new Date())
-
   useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 1000)
     return () => clearInterval(t)
   }, [])
 
   return {
+    date: now.toLocaleDateString([], { weekday: 'short', day: 'numeric', month: 'short' }),
     time: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    date: now.toLocaleDateString([], {
-      weekday: 'short',
-      day: 'numeric',
-      month: 'short',
-    }),
   }
 }
 
 export default function App() {
-  const { time, date } = useClock()
-  const [startOpen, setStartOpen] = useState(false)
-  const [windows, setWindows] = useState(initialWindows)
+  const { date, time } = useClock()
+  const [windows, setWindows] = useState(INITIAL_WINDOWS)
   const [drag, setDrag] = useState(null)
-  const desktopRef = useRef(null)
+  const [launcherOpen, setLauncherOpen] = useState(false)
 
   const topZ = useMemo(() => Math.max(10, ...windows.map((w) => w.z || 10)) + 1, [windows])
 
   const focusWindow = (id) => {
-    setWindows((prev) =>
-      prev.map((w) => (w.id === id ? { ...w, minimized: false, z: topZ } : w)),
-    )
+    setWindows((prev) => prev.map((w) => (w.id === id ? { ...w, minimized: false, z: topZ } : w)))
+  }
+
+  const minimizeWindow = (id) => {
+    setWindows((prev) => prev.map((w) => (w.id === id ? { ...w, minimized: true } : w)))
   }
 
   const closeWindow = (id) => setWindows((prev) => prev.filter((w) => w.id !== id))
 
-  const minimizeWindow = (id) =>
-    setWindows((prev) => prev.map((w) => (w.id === id ? { ...w, minimized: true } : w)))
-
   const openApp = (app) => {
-    const found = windows.find((w) => w.id === app.id)
-    if (found) {
+    const existing = windows.find((w) => w.id === app.id)
+    if (existing) {
       focusWindow(app.id)
       return
     }
 
+    const Icon = app.icon
     const newWindow = {
       id: app.id,
       title: app.label,
-      x: 110 + Math.random() * 140,
-      y: 110 + Math.random() * 90,
-      w: 420,
-      h: 270,
+      x: 132 + Math.random() * 130,
+      y: 110 + Math.random() * 88,
+      w: 410,
+      h: 262,
       minimized: false,
       z: topZ,
-      content: app.content,
+      content: (
+        <div className="pane">
+          <div className="pane-head">
+            <span className="app-chip" style={{ background: app.color }}>
+              <Icon size={14} />
+            </span>
+            <h3>{app.label}</h3>
+          </div>
+          <p>{app.label} panel ready. Tell me what to add next.</p>
+        </div>
+      ),
     }
 
     setWindows((prev) => [...prev, newWindow])
-    setStartOpen(false)
+    setLauncherOpen(false)
   }
 
   const onPointerMove = (e) => {
     if (!drag) return
     const { id, offsetX, offsetY } = drag
     setWindows((prev) =>
-      prev.map((w) =>
-        w.id === id
-          ? {
-              ...w,
-              x: e.clientX - offsetX,
-              y: e.clientY - offsetY,
-            }
-          : w,
-      ),
+      prev.map((w) => (w.id === id ? { ...w, x: e.clientX - offsetX, y: e.clientY - offsetY } : w)),
     )
   }
 
   return (
     <div
       className="desktop"
-      ref={desktopRef}
       onPointerMove={onPointerMove}
       onPointerUp={() => setDrag(null)}
       onPointerLeave={() => setDrag(null)}
     >
-      <div className="overlay" />
-      <div className="ambient ambient-a" />
-      <div className="ambient ambient-b" />
+      <div className="vignette" />
 
-      <header className="topbar">
-        <div className="pill left-pill">
-          <span className="workspace-dot" />
+      <header className="top-strip">
+        <div className="micro-pill left">
+          <span className="workspace-index">1</span>
+          <span className="brand-dot" />
           <span>Seelen UI</span>
         </div>
 
-        <button className="pill time-pill" onClick={() => setStartOpen((s) => !s)}>
+        <button className="micro-pill center" onClick={() => setLauncherOpen((v) => !v)}>
           {date}, {time}
         </button>
 
-        <div className="pill right-pill">
+        <div className="micro-pill right">
           <span>SLO</span>
-          <Settings2 size={14} />
-          <Wifi size={14} />
-          <Volume2 size={14} />
-          <Bell size={14} />
-          <BatteryFull size={14} />
-          <span className="muted">81%</span>
+          <Settings2 size={12} />
+          <Wifi size={12} />
+          <Volume2 size={12} />
+          <Bell size={12} />
+          <BatteryFull size={12} />
+          <span className="percent">81%</span>
         </div>
       </header>
 
-      <main className="window-layer">
+      <main className="windows-layer">
         {windows.map((w) =>
           w.minimized ? null : (
             <section
               key={w.id}
-              className="window window-enter"
+              className="window win-enter"
               style={{ left: w.x, top: w.y, width: w.w, height: w.h, zIndex: w.z }}
               onPointerDown={() => focusWindow(w.id)}
             >
@@ -231,38 +165,37 @@ export default function App() {
                 }}
               >
                 <div className="title-left">
-                  <File size={14} />
+                  <Monitor size={13} />
                   <span>{w.title}</span>
                 </div>
-                <div className="window-actions">
+                <div className="actions">
                   <button onClick={() => minimizeWindow(w.id)} aria-label="Minimize">
-                    <Minus size={14} />
+                    <Minus size={13} />
                   </button>
                   <button onClick={() => closeWindow(w.id)} aria-label="Close">
-                    <X size={14} />
+                    <X size={13} />
                   </button>
                 </div>
               </div>
-              <div className="window-content">{w.content}</div>
+              <div className="content">{w.content}</div>
             </section>
           ),
         )}
       </main>
 
-      {startOpen && (
-        <section className="start-menu menu-enter">
-          <div className="search-wrap">
-            <Search size={16} />
-            <input placeholder="Type to search apps" />
+      {launcherOpen && (
+        <section className="launcher menu-enter">
+          <div className="search-row">
+            <Search size={14} />
+            <input placeholder="Search" />
           </div>
-
-          <div className="start-grid">
+          <div className="grid">
             {APPS.map((app) => {
               const Icon = app.icon
               return (
-                <button key={app.id} className="start-item" onClick={() => openApp(app)}>
-                  <span className="start-icon" style={{ background: app.color }}>
-                    <Icon size={16} />
+                <button key={app.id} className="grid-item" onClick={() => openApp(app)}>
+                  <span className="grid-icon" style={{ background: app.color }}>
+                    <Icon size={14} />
                   </span>
                   <span>{app.label}</span>
                 </button>
@@ -273,16 +206,21 @@ export default function App() {
       )}
 
       <footer className="dock-wrap">
-        <div className="dock dock-enter">
-          <button className="dock-btn start" onClick={() => setStartOpen((s) => !s)} title="Applications">
+        <div className="dock tiny-dock-enter">
+          <button className="dock-btn" onClick={() => setLauncherOpen((v) => !v)} title="Launcher">
             ◼
           </button>
+
+          <div className="music-chip" title="Now playing">
+            <Disc3 size={12} />
+            <span>SHAKE SUM</span>
+          </div>
 
           {APPS.map((app) => {
             const Icon = app.icon
             return (
               <button key={app.id} className="dock-btn" onClick={() => openApp(app)} title={app.label}>
-                <Icon size={18} />
+                <Icon size={15} />
               </button>
             )
           })}
