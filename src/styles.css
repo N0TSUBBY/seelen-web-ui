@@ -87,6 +87,37 @@ body,
   color: var(--muted);
 }
 
+.desktop-shortcuts {
+  position: absolute;
+  top: 64px;
+  left: 14px;
+  z-index: 20;
+  display: grid;
+  gap: 8px;
+}
+
+.shortcut-btn {
+  width: 76px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(14, 18, 28, 0.55);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 8px 6px;
+  display: grid;
+  gap: 4px;
+  justify-items: center;
+  cursor: pointer;
+}
+
+.shortcut-btn span {
+  font-size: 20px;
+}
+
+.shortcut-btn small {
+  font-size: 10px;
+  color: var(--muted);
+}
+
 .windows-layer {
   position: absolute;
   inset: 0;
@@ -123,6 +154,10 @@ body,
   align-items: center;
   gap: 6px;
   font-size: 12px;
+}
+
+.title-logo {
+  font-size: 14px;
 }
 
 .actions {
@@ -162,6 +197,47 @@ body,
   font-size: 13px;
 }
 
+.linux-pane {
+  height: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 10px;
+  background: rgba(3, 7, 14, 0.45);
+  padding: 10px;
+}
+
+.linux-pane-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.linux-pane ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.linux-pane li {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 8px;
+  font-size: 13px;
+}
+
+.terminal-pane {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  color: #bbf7d0;
+}
+
+.terminal-pane p {
+  margin: 0 0 7px;
+  font-size: 12px;
+}
+
 .pane-head {
   display: flex;
   align-items: center;
@@ -175,12 +251,13 @@ body,
   gap: 10px;
 }
 
-.app-chip {
+.app-logo {
   width: 22px;
   height: 22px;
   border-radius: 7px;
   display: grid;
   place-items: center;
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .open-link {
@@ -200,6 +277,19 @@ body,
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 8px;
   background: rgba(0, 0, 0, 0.25);
+}
+
+.resize-handle {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  right: 2px;
+  bottom: 2px;
+  border: 0;
+  border-radius: 4px;
+  background: linear-gradient(135deg, transparent 25%, rgba(147, 197, 253, 0.85) 25%, rgba(147, 197, 253, 0.85) 35%, transparent 35%);
+  cursor: nwse-resize;
+  opacity: 0.7;
 }
 
 .launcher {
@@ -269,6 +359,10 @@ body,
   color: #fff;
 }
 
+.grid-label {
+  white-space: nowrap;
+}
+
 .dock-wrap {
   position: absolute;
   left: 0;
@@ -307,6 +401,10 @@ body,
   place-items: center;
   cursor: pointer;
   transition: transform 120ms ease, background 120ms ease;
+}
+
+.dock-logo {
+  font-size: 13px;
 }
 
 .dock-btn:hover {
@@ -348,7 +446,8 @@ body,
 }
 
 @media (max-width: 900px) {
-  .left {
+  .left,
+  .desktop-shortcuts {
     display: none;
   }
 
@@ -381,5 +480,4 @@ body,
     width: calc(100vw - 16px);
     justify-content: space-around;
   }
-
 }
