@@ -2,26 +2,50 @@ import { useEffect, useMemo, useState } from 'react'
 import {
   BatteryFull,
   Bell,
-  Disc3,
-  Folder,
-  Globe,
   Minus,
   Search,
   Settings2,
-  Shield,
+  Sparkles,
   Volume2,
   Wifi,
   X,
   MessageCircle,
   Monitor,
+  Music2,
+  Youtube,
 } from 'lucide-react'
 
 const APPS = [
-  { id: 'files', label: 'Files', icon: Folder, color: '#f4c74f' },
-  { id: 'browser', label: 'Browser', icon: Globe, color: '#60a5fa' },
-  { id: 'music', label: 'Music', icon: Disc3, color: '#22c55e' },
-  { id: 'security', label: 'Security', icon: Shield, color: '#fb923c' },
-  { id: 'chat', label: 'Discord', icon: MessageCircle, color: '#818cf8' },
+  {
+    id: 'spotify',
+    label: 'Spotify',
+    icon: Music2,
+    color: '#22c55e',
+    url: 'https://open.spotify.com',
+    frameUrl: 'https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M',
+  },
+  {
+    id: 'discord',
+    label: 'Discord',
+    icon: MessageCircle,
+    color: '#818cf8',
+    url: 'https://discord.com/app',
+  },
+  {
+    id: 'youtube',
+    label: 'YouTube',
+    icon: Youtube,
+    color: '#ef4444',
+    url: 'https://www.youtube.com',
+    frameUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+  },
+  {
+    id: 'copilot',
+    label: 'Copilot',
+    icon: Sparkles,
+    color: '#38bdf8',
+    url: 'https://github.com/copilot',
+  },
 ]
 
 const INITIAL_WINDOWS = [
@@ -88,19 +112,23 @@ export default function App() {
       title: app.label,
       x: 132 + Math.random() * 130,
       y: 110 + Math.random() * 88,
-      w: 410,
-      h: 262,
+      w: 520,
+      h: 360,
       minimized: false,
       z: topZ,
+      contentClass: 'frame-content',
       content: (
-        <div className="pane">
+        <div className="web-app">
           <div className="pane-head">
             <span className="app-chip" style={{ background: app.color }}>
               <Icon size={14} />
             </span>
             <h3>{app.label}</h3>
+            <a href={app.url} target="_blank" rel="noreferrer" className="open-link">
+              Open in new tab
+            </a>
           </div>
-          <p>{app.label} panel ready. Tell me what to add next.</p>
+          <iframe title={app.label} src={app.frameUrl || app.url} className="app-frame" />
         </div>
       ),
     }
@@ -177,7 +205,7 @@ export default function App() {
                   </button>
                 </div>
               </div>
-              <div className="content">{w.content}</div>
+              <div className={`content ${w.contentClass || ''}`.trim()}>{w.content}</div>
             </section>
           ),
         )}
@@ -210,11 +238,6 @@ export default function App() {
           <button className="dock-btn" onClick={() => setLauncherOpen((v) => !v)} title="Launcher">
             ◼
           </button>
-
-          <div className="music-chip" title="Now playing">
-            <Disc3 size={12} />
-            <span>SHAKE SUM</span>
-          </div>
 
           {APPS.map((app) => {
             const Icon = app.icon
